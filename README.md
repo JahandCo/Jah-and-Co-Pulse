@@ -92,21 +92,21 @@ Jah-and-Co-Pulse/
 
 5. **For production deployment**
 
-   **Option A: Deploy to Apache Server (pulseapp.jahandco.com)**
+   **Option A: Deploy to Apache Server (pulseapp.jahandco.tech)**
    
    The application is ready for Apache deployment with all necessary configuration files:
    
    ```bash
    # Quick deployment (3 commands)
-   scp -r . user@your-ip:/var/www/pulseapp.jahandco.com/
-   sudo /var/www/pulseapp.jahandco.com/deploy.sh
-   sudo certbot --apache -d pulseapp.jahandco.com
+   scp -r . user@your-ip:/var/www/Jah-and-Co-Pulse/
+   sudo /var/www/Jah-and-Co-Pulse/deploy.sh
+   sudo certbot --apache -d pulseapp.jahandco.tech
    ```
    
    **Included Files:**
    - `public/` - Web root directory
-   - `pulseapp.jahandco.com.conf` - Apache HTTP config
-   - `pulseapp.jahandco.com-le-ssl.conf` - Apache HTTPS/SSL config
+   - `pulseapp.jahandco.tech.conf` - Apache HTTP config
+   - `pulseapp.jahandco.tech-le-ssl.conf` - Apache HTTPS/SSL config
    - `.env` - Production Firebase credentials
    - `deploy.sh` - Automated deployment script
    

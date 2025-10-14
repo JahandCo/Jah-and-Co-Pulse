@@ -1,4 +1,4 @@
-# Deployment Checklist for pulseapp.jahandco.com
+# Deployment Checklist for pulseapp.jahandco.tech
 
 ## Pre-Deployment
 
@@ -11,8 +11,8 @@
 ## File Verification
 
 - [x] **public/** directory created with all files
-- [x] **pulseapp.jahandco.com.conf** - Apache HTTP config
-- [x] **pulseapp.jahandco.com-le-ssl.conf** - Apache HTTPS/SSL config
+- [x] **pulseapp.jahandco.tech.conf** - Apache HTTP config
+- [x] **pulseapp.jahandco.tech-le-ssl.conf** - Apache HTTPS/SSL config
 - [x] **.env** - Production Firebase credentials (actual values filled)
 - [x] **.htaccess** - Rewrite rules updated for production
 - [x] **deploy.sh** - Automated deployment script
@@ -22,13 +22,13 @@
 ## Deployment Steps
 
 ### 1. Upload Files
-- [ ] Upload entire repository to `/var/www/pulseapp.jahandco.com/`
+- [ ] Upload entire repository to `/var/www/Jah-and-Co-Pulse/`
 - [ ] Verify all files are present
 - [ ] Check .env file has actual credentials
 
 ### 2. Run Deployment Script
 ```bash
-cd /var/www/pulseapp.jahandco.com
+cd /var/www/Jah-and-Co-Pulse
 sudo chmod +x deploy.sh
 sudo ./deploy.sh
 ```
@@ -40,7 +40,7 @@ sudo ./deploy.sh
 ### 3. Install SSL Certificate
 ```bash
 sudo apt install certbot python3-certbot-apache
-sudo certbot --apache -d pulseapp.jahandco.com
+sudo certbot --apache -d pulseapp.jahandco.tech
 ```
 - [ ] Certificate installed successfully
 - [ ] HTTPS redirects working
@@ -49,8 +49,8 @@ sudo certbot --apache -d pulseapp.jahandco.com
 ### 4. Test Application
 
 #### Basic Tests
-- [ ] http://pulseapp.jahandco.com redirects to HTTPS
-- [ ] https://pulseapp.jahandco.com loads
+- [ ] http://pulseapp.jahandco.tech redirects to HTTPS
+- [ ] https://pulseapp.jahandco.tech loads
 - [ ] No console errors in browser
 - [ ] All assets load (CSS, JS, images)
 - [ ] Particle animation works
@@ -94,11 +94,11 @@ sudo certbot --apache -d pulseapp.jahandco.com
 
 - [ ] Error logs accessible
   ```bash
-  sudo tail -f /var/log/apache2/pulseapp.jahandco.com-ssl-error.log
+  sudo tail -f /var/log/apache2/pulseapp.jahandco.tech-ssl-error.log
   ```
 - [ ] Access logs accessible
   ```bash
-  sudo tail -f /var/log/apache2/pulseapp.jahandco.com-ssl-access.log
+  sudo tail -f /var/log/apache2/pulseapp.jahandco.tech-ssl-access.log
   ```
 - [ ] Log rotation configured
 - [ ] Monitoring alerts setup (optional)
@@ -108,7 +108,7 @@ sudo certbot --apache -d pulseapp.jahandco.com
 ### Firebase Configuration
 - [ ] Update Firestore rules in Firebase Console
 - [ ] Update Storage rules in Firebase Console
-- [ ] Add pulseapp.jahandco.com to authorized domains
+- [ ] Add pulseapp.jahandco.tech to authorized domains
 - [ ] Test Firebase authentication from live site
 
 ### DNS & SSL
@@ -135,13 +135,13 @@ sudo certbot --apache -d pulseapp.jahandco.com
 
 **403 Forbidden Error**
 ```bash
-sudo chown -R www-data:www-data /var/www/pulseapp.jahandco.com
-sudo chmod -R 755 /var/www/pulseapp.jahandco.com
+sudo chown -R www-data:www-data /var/www/Jah-and-Co-Pulse
+sudo chmod -R 755 /var/www/Jah-and-Co-Pulse
 ```
 
 **500 Internal Server Error**
 ```bash
-sudo tail -50 /var/log/apache2/pulseapp.jahandco.com-error.log
+sudo tail -50 /var/log/apache2/pulseapp.jahandco.tech-error.log
 apache2ctl -t
 ```
 
@@ -181,10 +181,10 @@ sudo apache2ctl -M | grep rewrite
 sudo certbot certificates
 
 # Test SSL configuration
-curl -I https://pulseapp.jahandco.com
+curl -I https://pulseapp.jahandco.tech
 
 # Check file permissions
-ls -la /var/www/pulseapp.jahandco.com/public
+ls -la /var/www/Jah-and-Co-Pulse/public
 ```
 
 ## Rollback Plan
@@ -193,18 +193,18 @@ If issues occur:
 
 1. Disable the site:
    ```bash
-   sudo a2dissite pulseapp.jahandco.com.conf
+   sudo a2dissite pulseapp.jahandco.tech.conf
    sudo systemctl reload apache2
    ```
 
 2. Review logs:
    ```bash
-   sudo tail -100 /var/log/apache2/pulseapp.jahandco.com-error.log
+   sudo tail -100 /var/log/apache2/pulseapp.jahandco.tech-error.log
    ```
 
 3. Fix issues and re-enable:
    ```bash
-   sudo a2ensite pulseapp.jahandco.com.conf
+   sudo a2ensite pulseapp.jahandco.tech.conf
    sudo systemctl reload apache2
    ```
 

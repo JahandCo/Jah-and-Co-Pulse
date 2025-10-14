@@ -1,4 +1,4 @@
-# Deployment Guide for pulseapp.jahandco.com
+# Deployment Guide for pulseapp.jahandco.tech
 
 This guide will help you deploy the Jah and Co Pulse application to your Apache server.
 
@@ -6,34 +6,34 @@ This guide will help you deploy the Jah and Co Pulse application to your Apache 
 
 - Apache web server installed
 - Root or sudo access to the server
-- Domain name (pulseapp.jahandco.com) pointing to your server IP
+- Domain name (pulseapp.jahandco.tech) pointing to your server IP
 - Let's Encrypt (Certbot) for SSL certificates
 
 ## Deployment Steps
 
 ### 1. Upload Files to Server
 
-Upload the entire repository to your server at: `/var/www/pulseapp.jahandco.com/`
+Upload the entire repository to your server at: `/var/www/Jah-and-Co-Pulse/`
 
 ```bash
 # On your local machine
-scp -r /path/to/Jah-and-Co-Pulse user@your-server-ip:/var/www/pulseapp.jahandco.com/
+scp -r /path/to/Jah-and-Co-Pulse user@your-server-ip:/var/www/Jah-and-Co-Pulse/
 ```
 
 Or use git:
 ```bash
 # On your server
 cd /var/www/
-git clone https://github.com/JahandCo/Jah-and-Co-Pulse.git pulseapp.jahandco.com
-cd pulseapp.jahandco.com
+git clone https://github.com/JahandCo/Jah-and-Co-Pulse.git pulseapp.jahandco.tech
+cd pulseapp.jahandco.tech
 ```
 
 ### 2. Set Correct Permissions
 
 ```bash
 # On your server
-sudo chown -R www-data:www-data /var/www/pulseapp.jahandco.com
-sudo chmod -R 755 /var/www/pulseapp.jahandco.com
+sudo chown -R www-data:www-data /var/www/Jah-and-Co-Pulse
+sudo chmod -R 755 /var/www/Jah-and-Co-Pulse
 ```
 
 ### 3. Enable Required Apache Modules
@@ -52,8 +52,8 @@ sudo systemctl restart apache2
 Copy the configuration file to Apache's sites-available directory:
 
 ```bash
-sudo cp /var/www/pulseapp.jahandco.com/pulseapp.jahandco.com.conf /etc/apache2/sites-available/
-sudo a2ensite pulseapp.jahandco.com.conf
+sudo cp /var/www/Jah-and-Co-Pulse/pulseapp.jahandco.tech.conf /etc/apache2/sites-available/
+sudo a2ensite pulseapp.jahandco.tech.conf
 sudo systemctl reload apache2
 ```
 
@@ -73,7 +73,7 @@ sudo apt update
 sudo apt install certbot python3-certbot-apache
 
 # Obtain and install SSL certificate
-sudo certbot --apache -d pulseapp.jahandco.com
+sudo certbot --apache -d pulseapp.jahandco.tech
 
 # Follow the prompts:
 # - Enter your email address
@@ -97,16 +97,16 @@ sudo certbot renew --dry-run
 If you prefer to manually configure SSL, copy the SSL configuration:
 
 ```bash
-sudo cp /var/www/pulseapp.jahandco.com/pulseapp.jahandco.com-le-ssl.conf /etc/apache2/sites-available/
-sudo a2ensite pulseapp.jahandco.com-le-ssl.conf
+sudo cp /var/www/Jah-and-Co-Pulse/pulseapp.jahandco.tech-le-ssl.conf /etc/apache2/sites-available/
+sudo a2ensite pulseapp.jahandco.tech-le-ssl.conf
 sudo systemctl reload apache2
 ```
 
 ### 9. Verify Deployment
 
 Open your browser and visit:
-- http://pulseapp.jahandco.com (should redirect to HTTPS)
-- https://pulseapp.jahandco.com (should load the application)
+- http://pulseapp.jahandco.tech (should redirect to HTTPS)
+- https://pulseapp.jahandco.tech (should load the application)
 
 ### 10. Configure Firewall (if using UFW)
 
@@ -119,7 +119,7 @@ sudo ufw status
 ## Directory Structure on Server
 
 ```
-/var/www/pulseapp.jahandco.com/
+/var/www/Jah-and-Co-Pulse/
 ├── public/                          # Web root directory
 │   ├── assets/
 │   │   ├── css/
@@ -132,8 +132,8 @@ sudo ufw status
 │   ├── profile.html
 │   └── .htaccess
 ├── .env                             # Environment variables
-├── pulseapp.jahandco.com.conf       # Apache HTTP config
-├── pulseapp.jahandco.com-le-ssl.conf # Apache HTTPS config
+├── pulseapp.jahandco.tech.conf       # Apache HTTP config
+├── pulseapp.jahandco.tech-le-ssl.conf # Apache HTTPS config
 └── [other files]
 ```
 
@@ -162,10 +162,10 @@ Follow the testing procedures in TESTING.md:
 
 ```bash
 # View Apache error logs
-sudo tail -f /var/log/apache2/pulseapp.jahandco.com-ssl-error.log
+sudo tail -f /var/log/apache2/pulseapp.jahandco.tech-ssl-error.log
 
 # View Apache access logs
-sudo tail -f /var/log/apache2/pulseapp.jahandco.com-ssl-access.log
+sudo tail -f /var/log/apache2/pulseapp.jahandco.tech-ssl-access.log
 ```
 
 ## Troubleshooting
@@ -173,14 +173,14 @@ sudo tail -f /var/log/apache2/pulseapp.jahandco.com-ssl-access.log
 ### 403 Forbidden Error
 ```bash
 # Check file permissions
-ls -la /var/www/pulseapp.jahandco.com/public
-sudo chown -R www-data:www-data /var/www/pulseapp.jahandco.com
+ls -la /var/www/Jah-and-Co-Pulse/public
+sudo chown -R www-data:www-data /var/www/Jah-and-Co-Pulse
 ```
 
 ### 500 Internal Server Error
 ```bash
 # Check Apache error logs
-sudo tail -50 /var/log/apache2/pulseapp.jahandco.com-error.log
+sudo tail -50 /var/log/apache2/pulseapp.jahandco.tech-error.log
 
 # Check .htaccess syntax
 apache2ctl -t
@@ -210,7 +210,7 @@ sudo systemctl restart apache2
 ### Update Application
 
 ```bash
-cd /var/www/pulseapp.jahandco.com
+cd /var/www/Jah-and-Co-Pulse
 git pull origin main
 sudo systemctl reload apache2
 ```
@@ -220,10 +220,10 @@ sudo systemctl reload apache2
 Regular backups recommended:
 ```bash
 # Backup web files
-sudo tar -czf pulseapp-backup-$(date +%Y%m%d).tar.gz /var/www/pulseapp.jahandco.com
+sudo tar -czf pulseapp-backup-$(date +%Y%m%d).tar.gz /var/www/Jah-and-Co-Pulse
 
 # Backup Apache configuration
-sudo cp /etc/apache2/sites-available/pulseapp.jahandco.com* /backup/location/
+sudo cp /etc/apache2/sites-available/pulseapp.jahandco.tech* /backup/location/
 ```
 
 ## Security Recommendations
@@ -235,7 +235,7 @@ sudo cp /etc/apache2/sites-available/pulseapp.jahandco.com* /backup/location/
 
 2. **Monitor logs regularly**:
    ```bash
-   sudo tail -f /var/log/apache2/pulseapp.jahandco.com-ssl-error.log
+   sudo tail -f /var/log/apache2/pulseapp.jahandco.tech-ssl-error.log
    ```
 
 3. **Use fail2ban** to prevent brute force attacks:

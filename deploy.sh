@@ -22,8 +22,8 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Configuration
-DOMAIN="pulseapp.jahandco.com"
-INSTALL_DIR="/var/www/$DOMAIN"
+DOMAIN="pulseapp.jahandco.tech"
+INSTALL_DIR="/var/www/Jah-and-Co-Pulse"
 CURRENT_DIR="$(pwd)"
 
 echo -e "${YELLOW}Step 1: Checking prerequisites...${NC}"

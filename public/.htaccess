@@ -26,8 +26,8 @@
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
     # Force WWW removal (if applicable)
-    RewriteCond %{HTTP_HOST} ^www\.pulseapp\.jahandco\.com [NC]
-    RewriteRule ^(.*)$ https://pulseapp.jahandco.com/$1 [L,R=301]
+    RewriteCond %{HTTP_HOST} ^www\.pulseapp\.jahandco\.tech [NC]
+    RewriteRule ^(.*)$ https://pulseapp.jahandco.tech/$1 [L,R=301]
     
     # Remove .html extension from URLs
     RewriteCond %{REQUEST_FILENAME} !-d
