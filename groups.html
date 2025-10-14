@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jah and Co | Community Groups</title>
+    <meta name="description" content="Community Groups - Join and connect with others">
+    <title>Groups | Community Pulse</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <script src="https://unpkg.com/heroicons@2.0.13/24/outline.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <canvas id="particle-canvas"></canvas>
@@ -14,15 +24,15 @@
     <div id="main-app-view" style="display: none;" class="fade-in-section">
         <header class="app-header container mx-auto flex justify-between items-center sticky top-0 bg-opacity-80 backdrop-blur-md z-10 border-b border-purple-900/50">
             <a href="index.html" class="header-logo text-2xl font-bold uppercase tracking-widest text-white">
-                <img src="../assets/images/sparky-headshot.png" alt="Sparky Mascot">
+                <img src="assets/images/sparky-headshot.png" alt="Sparky Mascot" onerror="this.style.display='none'">
                 <span>Jah and Co <span class="text-main-purple pulse-animated">Pulse</span></span>
             </a>
             <nav class="flex items-center gap-8">
-                <a href="index.html" class="nav-link"><i class="hero-outline-home"></i>Timeline</a>
-                <a href="groups.html" class="nav-link active"><i class="hero-outline-users"></i>Groups</a>
-                <a href="board.html" class="nav-link"><i class="hero-outline-chat-bubble-left-right"></i>Board</a>
-                <a href="profile.html" class="nav-link"><i class="hero-outline-user-circle"></i>Profile</a>
-                <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="hero-outline-arrow-left-on-rectangle"></i>Logout</button>
+                <a href="index.html" class="nav-link"><i class="ph ph-house"></i>Timeline</a>
+                <a href="groups.html" class="nav-link active"><i class="ph ph-users"></i>Groups</a>
+                <a href="board.html" class="nav-link"><i class="ph ph-chats"></i>Board</a>
+                <a href="profile.html" class="nav-link"><i class="ph ph-user-circle"></i>Profile</a>
+                <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="ph ph-sign-out"></i>Logout</button>
             </nav>
         </header>
         
@@ -36,7 +46,7 @@
 
             <main id="single-group-view" class="hidden w-full max-w-4xl mx-auto">
                 <div class="flex justify-between items-center mb-8">
-                    <button id="back-to-groups-btn" class="secondary-button text-lg"><i class="hero-outline-arrow-left"></i> Back to Groups</button>
+                    <button id="back-to-groups-btn" class="secondary-button text-lg"><i class="ph ph-arrow-left"></i> Back to Groups</button>
                     <h3 id="single-group-name" class="text-4xl font-bold text-white"></h3>
                 </div>
                 <p id="single-group-description" class="text-gray-300 text-lg text-center mb-10"></p>
@@ -45,7 +55,7 @@
                     <h2 class="text-2xl font-bold mb-4">Create a Post</h2>
                     <form id="create-group-post-form" class="space-y-4">
                         <textarea id="group-post-content-textarea" placeholder="Share your thoughts with the group..." rows="4" class="input-field w-full text-lg" required></textarea>
-                        <button type="submit" class="neon-button w-full"><i class="hero-outline-paper-plane-tilt"></i>Publish</button>
+                        <button type="submit" class="neon-button w-full"><i class="ph ph-paper-plane-tilt"></i>Publish</button>
                     </form>
                 </section>
                 
@@ -55,10 +65,10 @@
     </div>
 
     <script type="module">
-        import { app } from "../assets/js/firebase-config.js";
+        import { app } from "./assets/js/firebase-config.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, addDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { loadTheme } from '../assets/js/theme.js';
+        import { loadTheme } from './assets/js/theme.js';
         
         loadTheme();
         const db = getFirestore(app);
@@ -77,7 +87,7 @@
                 mainAppView.style.display = "block";
                 listenForGroups();
             } else {
-                window.location.href = '../login/';
+                window.location.href = 'login.html';
             }
         });
 
@@ -96,7 +106,7 @@
             if (snapshot.empty) {
                 groupsContainer.innerHTML = `
                     <div class="card text-center flex flex-col items-center gap-4 empty-state md:col-span-2 lg:col-span-3">
-                         <img src="../assets/images/sparky-headshot.png" alt="Sparky" class="w-24 h-24">
+                         <img src="assets/images/sparky-headshot.png" alt="Sparky" class="w-24 h-24" onerror="this.style.display='none'">
                         <p class="text-gray-400 text-xl">No groups created yet. Stay tuned!</p>
                     </div>`;
                 return;
@@ -118,7 +128,7 @@
                         <h4 class="text-2xl font-bold text-main-purple mb-2">${group.name}</h4>
                         <p class="text-gray-300 mb-4 flex-grow">${group.description}</p>
                         <div class="flex items-center justify-center text-sm text-gray-400 mb-6">
-                            <i class="hero-outline-users-three mr-2 text-xl"></i>
+                            <i class="ph ph-users-three mr-2 text-xl"></i>
                             <span>${memberCount} Members</span>
                         </div>
                     </div>
@@ -206,7 +216,7 @@
                     const date = post.createdAt ? new Date(post.createdAt.toDate()).toLocaleString() : 'Just now';
                     postEl.innerHTML = `
                         <header class="flex items-center gap-4 mb-4">
-                            <i class="hero-outline-user-circle text-main-purple text-5xl"></i>
+                            <i class="ph ph-user-circle text-main-purple text-5xl"></i>
                             <div>
                                 <h3 class="font-bold text-xl">${post.authorDisplayName}</h3>
                                 <span class="text-sm text-gray-400">${date}</span>
@@ -219,57 +229,6 @@
             });
         }
     </script>
-    <script>
-        // --- PARTICLE ANIMATION SCRIPT ---
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        
-        function resizeCanvas() { 
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 4 + 1;
-                this.speedX = (Math.random() - 0.5) * 1.5;
-                this.speedY = (Math.random() - 0.5) * 1.5;
-                if (window.particleColors) {
-                    this.color = window.particleColors[Math.floor(Math.random() * window.particleColors.length)];
-                } else {
-                    this.color = "#FFFFFF";
-                }
-                this.opacity = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width) this.x = Math.random() * canvas.width;
-                if (this.y < 0 || this.y > canvas.height) this.y = Math.random() * canvas.height;
-            }
-            draw() {
-                ctx.globalAlpha = this.opacity; ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-            }
-        }
-
-        window.initParticles = function() {
-            particles = [];
-            let n = (canvas.width * canvas.height) / 8000;
-            for (let i = 0; i < n; i++) { particles.push(new Particle()); }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', () => { resizeCanvas(); window.initParticles(); });
-        resizeCanvas();
-        animate();
-    </script>
+    <script type="module" src="assets/js/particle-animation.js"></script>
 </body>
 </html>

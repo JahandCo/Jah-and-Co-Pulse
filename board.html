@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discussion Board - Community Pulse">
     <title>Board | Community Pulse</title>
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="dist/css/style.css">
-    <script src="https://unpkg.com/heroicons@2.0.13/24/outline.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <canvas id="particle-canvas"></canvas>
@@ -17,15 +24,15 @@
     <div id="main-app-view" style="display: none;" class="fade-in-section">
         <header class="app-header container mx-auto flex justify-between items-center sticky top-0 bg-opacity-80 backdrop-blur-md z-10 border-b border-purple-900/50">
             <a href="index.html" class="header-logo text-2xl font-bold uppercase tracking-widest text-white">
-                <img dist/img/sparky-headshot.png>
+                <img src="assets/images/sparky-headshot.png" alt="Sparky Mascot" onerror="this.style.display='none'">
                 <span>Jah and Co <span class="text-main-purple pulse-animated">Pulse</span></span>
             </a>
             <nav class="flex items-center gap-8">
-                <a href="index.html" class="nav-link"><i class="hero-outline-home"></i>Timeline</a>
-                <a href="groups.html" class="nav-link"><i class="hero-outline-users"></i>Groups</a>
-                <a href="board.html" class="nav-link active"><i class="hero-outline-chat-bubble-left-right"></i>Board</a>
-                <a href="profile.html" class="nav-link"><i class="hero-outline-user-circle"></i>Profile</a>
-                <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="hero-outline-arrow-left-on-rectangle"></i>Logout</button>
+                <a href="index.html" class="nav-link"><i class="ph ph-house"></i>Timeline</a>
+                <a href="groups.html" class="nav-link"><i class="ph ph-users"></i>Groups</a>
+                <a href="board.html" class="nav-link active"><i class="ph ph-chats"></i>Board</a>
+                <a href="profile.html" class="nav-link"><i class="ph ph-user-circle"></i>Profile</a>
+                <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="ph ph-sign-out"></i>Logout</button>
             </nav>
         </header>
 
@@ -80,11 +87,11 @@
     </div>
 
     <script type="module">
-        import { app } from "dist/js/firebase-config.js";
+        import { app } from "./assets/js/firebase-config.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, getDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
-        import { loadTheme } from 'dist/js/theme.js';
+        import { loadTheme } from './assets/js/theme.js';
 
         loadTheme();
         const db = getFirestore(app);
@@ -96,7 +103,7 @@
                 document.getElementById('main-app-view').style.display = 'block';
                 listenForBoardPosts();
             } else {
-                window.location.href = '../login/';
+                window.location.href = 'login.html';
             }
         });
         document.getElementById('logout-button').addEventListener('click', () => signOut(auth));
@@ -192,7 +199,7 @@
             onSnapshot(q, (snapshot) => {
                 boardContainer.innerHTML = '';
                 if(snapshot.empty) {
-                     boardContainer.innerHTML = `<div class="card text-center flex flex-col items-center gap-4 empty-state"><img src="../assets/images/sparky-headshot.png" alt="Sparky" class="w-24 h-24"><p class="text-xl text-gray-400">The board is empty. Be the first to start a discussion!</p></div>`;
+                     boardContainer.innerHTML = `<div class="card text-center flex flex-col items-center gap-4 empty-state"><img src="assets/images/sparky-headshot.png" alt="Sparky" class="w-24 h-24" onerror="this.style.display='none'"><p class="text-xl text-gray-400">The board is empty. Be the first to start a discussion!</p></div>`;
                 }
                 snapshot.forEach(doc => {
                     const post = doc.data();
@@ -213,8 +220,8 @@ function renderDiscussion(el, post, postId) {
     const user = auth.currentUser;
     const isOwner = user && user.uid === post.authorId;
     const isAdmin = user && user.displayName === "Jah and Co";
-    const deleteBtn = isOwner || isAdmin ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm ml-auto"><i class="hero-outline-trash"></i>Delete</button>` : '';
-    const adminStar = post.authorDisplayName === "Jah and Co" ? `<img src="../assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post">` : '';
+    const deleteBtn = isOwner || isAdmin ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm ml-auto"><i class="ph ph-trash"></i>Delete</button>` : '';
+    const adminStar = post.authorDisplayName === "Jah and Co" ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
     const likeCount = post.likes ? Object.keys(post.likes).length : 0;
     const isLiked = user && post.likes && post.likes[user.uid];
     const likeButtonClasses = isLiked ? 'text-accent-purple' : 'text-gray-400';
@@ -230,7 +237,7 @@ function renderDiscussion(el, post, postId) {
 
     el.innerHTML = `
         <header class="flex items-start gap-4 mb-4">
-            <i class="hero-outline-chat-bubble-left-right text-main-purple text-4xl"></i>
+            <i class="ph ph-chats text-main-purple text-4xl"></i>
             <div class="flex-grow">
                 <h3 class="text-2xl font-bold">${post.title}</h3>
                 <div class="flex items-center">
@@ -246,11 +253,11 @@ function renderDiscussion(el, post, postId) {
         </div>
         <footer class="flex items-center gap-6 mt-6 pt-4 border-t border-purple-900/50 ml-14">
             <button class="like-button flex items-center gap-2 ${likeButtonClasses} hover:text-accent-purple text-lg transition-colors">
-                <i class="hero-outline-heart"></i>
+                <i class="ph ph-heart"></i>
                 <span class="like-count font-bold">${likeCount}</span>
             </button>
             <button class="comment-button neon-button !py-2 !px-4 !text-sm">
-                <i class="hero-outline-chat-bubble-left"></i>
+                <i class="ph ph-chat"></i>
                 <span>Comment</span>
                 <span class="comment-count font-bold ml-1">${post.commentCount || 0}</span>
             </button>
@@ -272,7 +279,7 @@ function renderDiscussion(el, post, postId) {
             const userVote = user ? post.votes[user.uid] : null;
             const canUserSeeResults = isPollClosed || userVote || (user && user.uid === post.authorId);
             const isAdmin = user && user.displayName === "Jah and Co";
-            const adminStar = post.authorDisplayName === "Jah and Co" ? `<img src="../assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post">` : '';
+            const adminStar = post.authorDisplayName === "Jah and Co" ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
 
             let optionsHtml = '';
 
@@ -296,11 +303,11 @@ function renderDiscussion(el, post, postId) {
             }
 
             const endPollBtn = user && user.uid === post.authorId && !isPollClosed ? `<button class="end-poll-btn secondary-button text-sm !text-yellow-400">End Poll Early</button>` : '';
-            const deleteBtn = (user && (user.uid === post.authorId || isAdmin)) ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm"><i class="hero-outline-trash"></i>Delete</button>` : '';
+            const deleteBtn = (user && (user.uid === post.authorId || isAdmin)) ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm"><i class="ph ph-trash"></i>Delete</button>` : '';
 
             el.innerHTML = `
                  <header class="flex items-start gap-4 mb-4">
-                    <i class="hero-outline-chart-bar text-main-purple text-4xl"></i>
+                    <i class="ph ph-chart-bar text-main-purple text-4xl"></i>
                     <div class="flex-grow">
                         <h3 class="text-2xl font-bold">${post.title}</h3>
                         <div class="flex items-center">
@@ -413,7 +420,7 @@ function loadComments(postId, container) {
             commentEl.className = 'flex items-start gap-3';
             const author = comment.authorDisplayName || comment.authorId;
             commentEl.innerHTML = `
-                <i class="hero-outline-user-circle text-main-purple text-3xl"></i>
+                <i class="ph ph-user-circle text-main-purple text-3xl"></i>
                 <div class="bg-gray-900/50 p-3 rounded-lg flex-grow">
                     <div class="flex items-baseline gap-2">
                         <span class="font-bold text-sm">${author}</span>
@@ -427,57 +434,6 @@ function loadComments(postId, container) {
     });
 }
     </script>
-    <script>
-        // --- PARTICLE ANIMATION SCRIPT ---
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        
-        function resizeCanvas() { 
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 4 + 1;
-                this.speedX = (Math.random() - 0.5) * 1.5;
-                this.speedY = (Math.random() - 0.5) * 1.5;
-                if (window.particleColors) {
-                    this.color = window.particleColors[Math.floor(Math.random() * window.particleColors.length)];
-                } else {
-                    this.color = "#FFFFFF";
-                }
-                this.opacity = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width) this.x = Math.random() * canvas.width;
-                if (this.y < 0 || this.y > canvas.height) this.y = Math.random() * canvas.height;
-            }
-            draw() {
-                ctx.globalAlpha = this.opacity; ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-            }
-        }
-
-        window.initParticles = function() {
-            particles = [];
-            let n = (canvas.width * canvas.height) / 8000;
-            for (let i = 0; i < n; i++) { particles.push(new Particle()); }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', () => { resizeCanvas(); window.initParticles(); });
-        resizeCanvas();
-        animate();
-    </script>
+    <script type="module" src="assets/js/particle-animation.js"></script>
 </body>
 </html>

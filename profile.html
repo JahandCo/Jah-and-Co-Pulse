@@ -3,26 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My Profile - Community Pulse">
     <title>My Profile | Community Pulse</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../assets/style.css">
-    <script src="https://unpkg.com/heroicons@2.0.13/24/outline.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <canvas id="particle-canvas"></canvas>
 
     <div id="main-app-view" style="display: none;" class="fade-in-section">
         <header class="app-header container mx-auto flex justify-between items-center sticky top-0 bg-opacity-80 backdrop-blur-md z-10 border-b border-purple-900/50">
-            <a href="../" class="header-logo text-2xl font-bold uppercase tracking-widest text-white">
-                <img src="../assets/images/sparky-headshot.png" alt="Sparky Mascot">
+            <a href="index.html" class="header-logo text-2xl font-bold uppercase tracking-widest text-white">
+                <img src="assets/images/sparky-headshot.png" alt="Sparky Mascot" onerror="this.style.display='none'">
                 <span>Jah and Co <span class="text-main-purple pulse-animated">Pulse</span></span>
             </a>
             <nav class="flex items-center gap-8">
-                <a href="../" class="nav-link"><i class="hero-outline-home"></i>Timeline</a>
-                <a href="../groups/" class="nav-link"><i class="hero-outline-users"></i>Groups</a>
-                <a href="../board/" class="nav-link"><i class="hero-outline-chat-bubble-left-right"></i>Board</a>
-                <a href="./" class="nav-link active"><i class="hero-outline-user-circle"></i>Profile</a>
-                <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="hero-outline-arrow-left-on-rectangle"></i>Logout</button>
+                <a href="index.html" class="nav-link"><i class="ph ph-house"></i>Timeline</a>
+                <a href="groups.html" class="nav-link"><i class="ph ph-users"></i>Groups</a>
+                <a href="board.html" class="nav-link"><i class="ph ph-chats"></i>Board</a>
+                <a href="profile.html" class="nav-link active"><i class="ph ph-user-circle"></i>Profile</a>
+                <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="ph ph-sign-out"></i>Logout</button>
             </nav>
         </header>
 
@@ -68,23 +78,12 @@
     </div>
     
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { app } from "./assets/js/firebase-config.js";
         import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { setTheme, loadTheme } from '../assets/theme.js';
+        import { setTheme, loadTheme } from './assets/js/theme.js';
 
         loadTheme();
-        
-        const firebaseConfig = {
-  apiKey: "AIzaSyAVVrmwHH8E6Gc613aO4WfCJuGP9DdpLOM",
-  authDomain: "jah-and-co-dev.firebaseapp.com",
-  projectId: "jah-and-co-dev",
-  storageBucket: "jah-and-co-dev.firebasestorage.app",
-  messagingSenderId: "451434139963",
-  appId: "1:451434139963:web:b4bfbffc472678c4c3671e",
-  measurementId: "G-N6L3JN4604"
-};
-        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         
@@ -112,7 +111,7 @@
                 }
                 listenForMyPosts(user.uid);
             } else {
-                window.location.href = '../login/';
+                window.location.href = 'login.html';
             }
         });
 
@@ -158,12 +157,12 @@
                     const author = post.authorDisplayName || post.authorId;
                     postElement.innerHTML = `
                         <header class="flex items-center gap-4 mb-4">
-                            <i class="hero-outline-user-circle text-main-purple text-5xl"></i>
+                            <i class="ph ph-user-circle text-main-purple text-5xl"></i>
                             <div>
                                 <h3 class="font-bold text-xl">${author}</h3>
                                 <span class="text-sm text-gray-400">${date}</span>
                             </div>
-                             <button class="delete-post-button secondary-button !text-red-500 hover:!text-red-400 ml-auto"><i class="hero-outline-trash"></i></button>
+                             <button class="delete-post-button secondary-button !text-red-500 hover:!text-red-400 ml-auto"><i class="ph ph-trash"></i></button>
                         </header>
                         <div class="text-gray-200 text-lg whitespace-pre-wrap leading-relaxed">${post.content}</div>
                     `;
@@ -183,57 +182,6 @@
             }
         });
     </script>
-    <script>
-        // --- PARTICLE ANIMATION SCRIPT ---
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        
-        function resizeCanvas() { 
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 4 + 1;
-                this.speedX = (Math.random() - 0.5) * 1.5;
-                this.speedY = (Math.random() - 0.5) * 1.5;
-                if (window.particleColors) {
-                    this.color = window.particleColors[Math.floor(Math.random() * window.particleColors.length)];
-                } else {
-                    this.color = "#FFFFFF";
-                }
-                this.opacity = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width) this.x = Math.random() * canvas.width;
-                if (this.y < 0 || this.y > canvas.height) this.y = Math.random() * canvas.height;
-            }
-            draw() {
-                ctx.globalAlpha = this.opacity; ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-            }
-        }
-
-        window.initParticles = function() {
-            particles = [];
-            let n = (canvas.width * canvas.height) / 8000;
-            for (let i = 0; i < n; i++) { particles.push(new Particle()); }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', () => { resizeCanvas(); window.initParticles(); });
-        resizeCanvas();
-        animate();
-    </script>
+    <script type="module" src="assets/js/particle-animation.js"></script>
 </body>
 </html>
