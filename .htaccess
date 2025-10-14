@@ -19,16 +19,19 @@
 # URL Rewriting
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
     
-    # Force HTTPS (uncomment in production with SSL)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # Remove .html extension from URLs (if requested)
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.html [NC]
+    RewriteRule ^ %1 [R=301,L]
     
-    # Remove .html extension from URLs
+    # Add .html extension internally (if file exists)
+    RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME}\.html -f
-    RewriteRule ^(.*)$ $1.html [L]
+    RewriteCond %{REQUEST_FILENAME}.html -f
+    RewriteRule ^(.+)$ $1.html [L,QSA]
+    
+    # Redirect /index to root
+    RewriteRule ^index$ / [R=301,L]
 </IfModule>
 
 # Caching
