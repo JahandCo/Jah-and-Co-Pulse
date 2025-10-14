@@ -72,5 +72,5 @@
 </IfModule>
 
 # Error Pages
-ErrorDocument 404 /index.html
-ErrorDocument 403 /index.html
+ErrorDocument 404 /
+ErrorDocument 403 /
