@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /
+
+# Rewrite /mail to /mail/index.php
+RewriteRule ^mail$ /mail/index.php [L]
+
+# Rewrite /pulse to /pulse/index.php
+RewriteRule ^pulse$ /pulse/index.php [L]
+
+
+**Placeholders for Mail and Pulse:**
+For now, you can leave the `/mail/` and `/pulse/` directories empty. In our next step, we will move the full application code into `index.php` files inside these folders. Trying to access `/mail` or `/pulse` will currently show a "404 Not Found" error, which is expected.
