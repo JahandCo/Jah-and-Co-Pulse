@@ -212,7 +212,7 @@ This project is licensed under the MIT License.
 
 ## Support
 
-For support, email support@jahandco.com or join our community.
+For support, please open an issue in the GitHub repository or join our community discussions.
 
 ## Acknowledgments
 

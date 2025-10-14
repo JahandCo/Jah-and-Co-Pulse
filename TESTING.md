@@ -181,8 +181,7 @@ Consider adding:
 
 ## Known Issues
 
-Document any known issues here:
-- None at this time
+Document any known issues discovered during testing below.
 
 ## Deployment Verification
 
@@ -207,4 +206,5 @@ If issues are found in production:
 
 For testing issues or questions:
 - Report bugs via GitHub Issues
-- Contact: support@jahandco.com
+- Open discussions in GitHub Discussions
+- Contact the development team via the repository

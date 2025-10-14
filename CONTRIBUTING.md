@@ -257,8 +257,8 @@ Fixes #456
 - Check the [README.md](README.md) for setup instructions
 - Review [TESTING.md](TESTING.md) for testing guidelines
 - Look at existing code for examples
-- Ask questions in GitHub Issues
-- Contact: support@jahandco.com
+- Ask questions in GitHub Issues or Discussions
+- Contact the development team via the repository
 
 ## License
 
