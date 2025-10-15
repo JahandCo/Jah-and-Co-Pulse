@@ -15,9 +15,18 @@
     # Permissions Policy (formerly Feature Policy)
     Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 
-    # Content Security Policy (site-wide)
-    # Centrally manage CSP to avoid per-page conflicts and allow required CDNs/services
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com https://*.firebase.com https://www.gstatic.com https://firestore.googleapis.com https://storage.googleapis.com https://firebasestorage.googleapis.com wss://*.firebaseio.com; frame-src 'self' https://*.firebaseapp.com; media-src 'self' https://storage.googleapis.com https://firebasestorage.googleapis.com data: blob:; object-src 'none'; base-uri 'self'"
+    # Centrally manage CSP to avoid per-page conflicts
+    Header always set Content-Security-Policy "default-src 'self'; \
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.gstatic.com https://unpkg.com; \
+        style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.jsdelivr.net; \
+        font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net data:; \
+        img-src 'self' data: https: blob:; \
+        connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com https://*.firebase.com https://www.gstatic.com https://firestore.googleapis.com https://storage.googleapis.com https://firebasestorage.googleapis.com wss://*.firebaseio.com; \
+        frame-src 'self' https://*.firebaseapp.com; \
+        media-src 'self' https://storage.googleapis.com https://firebasestorage.googleapis.com data: blob:; \
+        object-src 'none'; \
+        base-uri 'self'"
+
 </IfModule>
 
 # URL Rewriting
