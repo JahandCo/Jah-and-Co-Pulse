@@ -181,8 +181,8 @@
                 const adminStarHTML = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 
                     `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
                 const author = post.authorDisplayName || post.authorId;
-                const authorClass = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : '';
-
+                const authorIsAdmin = ADMIN_UIDS.includes(post.authorId) || post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME;
+                const authorClass = authorIsAdmin ? 'text-admin-gold' : '';
                 postElement.innerHTML = `
                     <header class="flex items-center gap-4 mb-4">
                         <i class="ph ph-user-circle text-main-purple text-5xl"></i>
