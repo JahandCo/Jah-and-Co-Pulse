@@ -36,6 +36,7 @@
                 <a href="index.html" class="nav-link"><i class="ph ph-house"></i>Timeline</a>
                 <a href="groups.html" class="nav-link"><i class="ph ph-users"></i>Groups</a>
                 <a href="board.html" class="nav-link active"><i class="ph ph-chats"></i>Board</a>
+                <a href="chat.html" class="nav-link"><i class="ph ph-chat-circle-dots"></i>Chat</a>
                 <a href="profile.html" class="nav-link"><i class="ph ph-user-circle"></i>Profile</a>
                 <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="ph ph-sign-out"></i>Logout</button>
             </nav>
@@ -97,6 +98,8 @@
         import { getFirestore, collection, doc, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, getDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
         import { loadTheme } from './assets/js/theme.js';
+        import { enforceDisplayName, isAdmin } from './assets/js/utils.js';
+        import { LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
 
         loadTheme();
         const db = getFirestore(app);
@@ -105,8 +108,15 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('main-app-view').style.display = 'block';
-                listenForBoardPosts();
+                const hasDisplayName = enforceDisplayName(auth, db, () => {
+                    document.getElementById('main-app-view').style.display = 'block';
+                    listenForBoardPosts();
+                });
+                
+                if (hasDisplayName) {
+                    document.getElementById('main-app-view').style.display = 'block';
+                    listenForBoardPosts();
+                }
             } else {
                 window.location.href = 'login.html';
             }
@@ -224,9 +234,13 @@
 function renderDiscussion(el, post, postId) {
     const user = auth.currentUser;
     const isOwner = user && user.uid === post.authorId;
-    const isAdmin = user && user.displayName === "Jah and Co";
-    const deleteBtn = isOwner || isAdmin ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm ml-auto"><i class="ph ph-trash"></i>Delete</button>` : '';
-    const adminStar = post.authorDisplayName === "Jah and Co" ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
+    const userIsAdmin = isAdmin(user);
+    const canDelete = isOwner || userIsAdmin;
+    const canEdit = userIsAdmin;
+    const deleteBtn = canDelete ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm ${canEdit && !isOwner ? 'ml-2' : 'ml-auto'}"><i class="ph ph-trash"></i>Delete</button>` : '';
+    const editBtn = canEdit && !isOwner ? `<button class="edit-post-btn neon-button !bg-blue-500 hover:!bg-blue-600 !shadow-blue-500/50 !py-2 !px-4 !text-sm ml-auto"><i class="ph ph-pencil"></i>Edit</button>` : '';
+    const adminStar = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
+    const authorClass = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : '';
     const likeCount = post.likes ? Object.keys(post.likes).length : 0;
     const isLiked = user && post.likes && post.likes[user.uid];
     const likeButtonClasses = isLiked ? 'text-accent-purple' : 'text-gray-400';
@@ -246,10 +260,11 @@ function renderDiscussion(el, post, postId) {
             <div class="flex-grow">
                 <h3 class="text-2xl font-bold">${post.title}</h3>
                 <div class="flex items-center">
-                    <p class="text-sm text-gray-400">Posted by ${post.authorDisplayName || post.authorId}</p>
+                    <p class="text-sm text-gray-400 ${authorClass}">Posted by ${post.authorDisplayName || post.authorId}</p>
                     ${adminStar}
                 </div>
             </div>
+            ${editBtn}
             ${deleteBtn}
         </header>
         <div class="ml-14">
@@ -283,8 +298,9 @@ function renderDiscussion(el, post, postId) {
             const isPollClosed = post.isClosed || now > endsAt;
             const userVote = user ? post.votes[user.uid] : null;
             const canUserSeeResults = isPollClosed || userVote || (user && user.uid === post.authorId);
-            const isAdmin = user && user.displayName === "Jah and Co";
-            const adminStar = post.authorDisplayName === "Jah and Co" ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
+            const userIsAdmin = isAdmin(user);
+            const adminStar = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
+            const authorClass = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : '';
 
             let optionsHtml = '';
 
@@ -308,7 +324,9 @@ function renderDiscussion(el, post, postId) {
             }
 
             const endPollBtn = user && user.uid === post.authorId && !isPollClosed ? `<button class="end-poll-btn secondary-button text-sm !text-yellow-400">End Poll Early</button>` : '';
-            const deleteBtn = (user && (user.uid === post.authorId || isAdmin)) ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm"><i class="ph ph-trash"></i>Delete</button>` : '';
+            const isOwner = user && user.uid === post.authorId;
+            const canDelete = isOwner || userIsAdmin;
+            const deleteBtn = canDelete ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm"><i class="ph ph-trash"></i>Delete</button>` : '';
 
             el.innerHTML = `
                  <header class="flex items-start gap-4 mb-4">
@@ -316,7 +334,7 @@ function renderDiscussion(el, post, postId) {
                     <div class="flex-grow">
                         <h3 class="text-2xl font-bold">${post.title}</h3>
                         <div class="flex items-center">
-                             <p class="text-sm text-gray-400">Poll by ${post.authorDisplayName || post.authorId} &bull; ${post.totalVotes} votes</p>
+                             <p class="text-sm text-gray-400 ${authorClass}">Poll by ${post.authorDisplayName || post.authorId} &bull; ${post.totalVotes} votes</p>
                              ${adminStar}
                         </div>
                     </div>
@@ -354,6 +372,32 @@ boardContainer.addEventListener('click', async (e) => {
             if (endPollBtn) {
                 if (confirm('Are you sure you want to end this poll early?')) {
                     await updateDoc(doc(db, "board", postId), { isClosed: true });
+                }
+            }
+            
+            const editBtn = e.target.closest('.edit-post-btn');
+            if (editBtn) {
+                const postRef = doc(db, "board", postId);
+                const postSnap = await getDoc(postRef);
+                if (postSnap.exists()) {
+                    const postData = postSnap.data();
+                    const newTitle = prompt("Edit post title:", postData.title);
+                    const newTopic = prompt("Edit post content:", postData.topic);
+                    
+                    if (newTitle !== null || newTopic !== null) {
+                        const updates = {};
+                        if (newTitle !== null && newTitle.trim() !== postData.title) updates.title = newTitle.trim();
+                        if (newTopic !== null && newTopic.trim() !== postData.topic) updates.topic = newTopic.trim();
+                        
+                        if (Object.keys(updates).length > 0) {
+                            try {
+                                await updateDoc(postRef, updates);
+                            } catch (error) {
+                                console.error("Error editing post:", error);
+                                alert("Could not edit post.");
+                            }
+                        }
+                    }
                 }
             }
             

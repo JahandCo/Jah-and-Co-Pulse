@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chat - Real-time conversations">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com https://*.firebase.com https://firestore.googleapis.com wss://*.firebaseio.com; frame-src 'self' https://*.firebaseapp.com;">
+    
+    <title>Chat | Community Pulse</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div id="main-app-view" class="fade-in-section hidden">
+        <header class="app-header container mx-auto flex justify-between items-center sticky top-0 bg-opacity-80 backdrop-blur-md z-10 border-b border-purple-900/50">
+            <a href="index.html" class="header-logo text-2xl font-bold uppercase tracking-widest text-white">
+                <img src="assets/images/sparky-headshot.png" alt="Sparky Mascot" onerror="this.style.display='none'">
+                <span>Jah and Co <span class="text-main-purple pulse-animated">Pulse</span></span>
+            </a>
+            <nav class="flex items-center gap-8">
+                <a href="index.html" class="nav-link"><i class="ph ph-house"></i>Timeline</a>
+                <a href="groups.html" class="nav-link"><i class="ph ph-users"></i>Groups</a>
+                <a href="board.html" class="nav-link"><i class="ph ph-chats"></i>Board</a>
+                <a href="chat.html" class="nav-link active"><i class="ph ph-chat-circle-dots"></i>Chat</a>
+                <a href="profile.html" class="nav-link"><i class="ph ph-user-circle"></i>Profile</a>
+                <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="ph ph-sign-out"></i>Logout</button>
+            </nav>
+        </header>
+        
+        <div class="main-content container mx-auto py-8 flex gap-6 h-[calc(100vh-120px)]">
+            <!-- Channels Sidebar -->
+            <aside class="w-64 card flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-main-purple">Channels</h3>
+                    <div id="create-channel-btn-container"></div>
+                </div>
+                <div id="channels-list" class="flex-1 overflow-y-auto space-y-2"></div>
+            </aside>
+            
+            <!-- Chat Area -->
+            <main class="flex-1 card flex flex-col">
+                <div id="no-channel-selected" class="flex-1 flex flex-col items-center justify-center text-center">
+                    <img src="assets/images/sparky-headshot.png" alt="Sparky" class="w-32 h-32 mb-6 opacity-70" onerror="this.style.display='none'">
+                    <h2 class="text-3xl font-bold mb-2">Welcome to Chat!</h2>
+                    <p class="text-gray-400 text-lg">Select a channel to start chatting</p>
+                </div>
+                
+                <div id="chat-view" class="hidden flex-1 flex flex-col">
+                    <div class="border-b border-purple-900/50 pb-4 mb-4">
+                        <h2 id="current-channel-name" class="text-2xl font-bold text-main-purple"></h2>
+                        <p id="current-channel-description" class="text-gray-400 text-sm"></p>
+                    </div>
+                    
+                    <div id="messages-container" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2"></div>
+                    
+                    <form id="message-form" class="flex gap-2">
+                        <input type="text" id="message-input" placeholder="Type your message..." class="input-field !text-sm w-full" required>
+                        <button type="submit" class="neon-button !text-sm !py-2 !px-6">
+                            <i class="ph ph-paper-plane-tilt"></i>
+                            Send
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module">
+        import { app } from "./assets/js/firebase-config.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { loadTheme } from './assets/js/theme.js';
+        import { enforceDisplayName, isAdmin } from './assets/js/utils.js';
+        import { LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
+        
+        loadTheme();
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const mainAppView = document.getElementById('main-app-view');
+        const logoutButton = document.getElementById('logout-button');
+        const channelsList = document.getElementById('channels-list');
+        const chatView = document.getElementById('chat-view');
+        const noChannelSelected = document.getElementById('no-channel-selected');
+        const messagesContainer = document.getElementById('messages-container');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const currentChannelName = document.getElementById('current-channel-name');
+        const currentChannelDescription = document.getElementById('current-channel-description');
+        
+        let currentChannelId = null;
+        let unsubscribeMessages = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const hasDisplayName = enforceDisplayName(auth, db, () => {
+                    mainAppView.style.display = 'block';
+                    listenForChannels();
+                    renderChannelCreationButton();
+                });
+                
+                if (hasDisplayName) {
+                    mainAppView.style.display = 'block';
+                    listenForChannels();
+                    renderChannelCreationButton();
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        logoutButton.addEventListener('click', () => signOut(auth));
+        
+        function renderChannelCreationButton() {
+            const user = auth.currentUser;
+            const container = document.getElementById('create-channel-btn-container');
+            if (isAdmin(user)) {
+                container.innerHTML = '<button id="create-channel-btn" class="secondary-button !py-1 !px-3 !text-xs"><i class="ph ph-plus"></i></button>';
+                document.getElementById('create-channel-btn').addEventListener('click', showChannelCreationModal);
+            }
+        }
+        
+        function showChannelCreationModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content card">
+                    <h2 class="text-3xl font-bold mb-6 text-center">Create New Channel</h2>
+                    <form id="channel-creation-form" class="space-y-4">
+                        <input type="text" id="channel-name" placeholder="Channel Name" class="input-field w-full" required maxlength="30">
+                        <textarea id="channel-description" placeholder="Channel Description" rows="2" class="input-field w-full" maxlength="100"></textarea>
+                        <div class="flex gap-4">
+                            <button type="submit" class="neon-button flex-1"><i class="ph ph-check-circle"></i>Create</button>
+                            <button type="button" class="secondary-button flex-1" id="cancel-channel-btn"><i class="ph ph-x-circle"></i>Cancel</button>
+                        </div>
+                        <p id="channel-error" class="text-red-400 text-sm text-center h-4"></p>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            document.getElementById('cancel-channel-btn').addEventListener('click', () => modal.remove());
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            
+            document.getElementById('channel-creation-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('channel-name').value.trim();
+                const description = document.getElementById('channel-description').value.trim();
+                const errorEl = document.getElementById('channel-error');
+                
+                try {
+                    await addDoc(collection(db, "channels"), {
+                        name,
+                        description: description || 'No description',
+                        createdBy: auth.currentUser.uid,
+                        createdAt: serverTimestamp()
+                    });
+                    modal.remove();
+                } catch (error) {
+                    console.error("Error creating channel:", error);
+                    errorEl.textContent = 'Failed to create channel. Please try again.';
+                }
+            });
+        }
+        
+        function listenForChannels() {
+            const channelsQuery = query(collection(db, "channels"), orderBy("createdAt", "asc"));
+            onSnapshot(channelsQuery, (snapshot) => {
+                channelsList.innerHTML = '';
+                if (snapshot.empty) {
+                    channelsList.innerHTML = '<p class="text-gray-400 text-sm text-center">No channels yet</p>';
+                    return;
+                }
+                
+                snapshot.forEach(docSnap => {
+                    const channel = docSnap.data();
+                    const channelId = docSnap.id;
+                    const channelElement = document.createElement('div');
+                    channelElement.className = `channel-item p-3 rounded-lg cursor-pointer transition-all ${currentChannelId === channelId ? 'bg-purple-900/50' : 'hover:bg-purple-900/30'}`;
+                    channelElement.setAttribute('data-id', channelId);
+                    
+                    const userIsAdmin = isAdmin(auth.currentUser);
+                    const deleteBtn = userIsAdmin ? `<button class="delete-channel-btn ml-auto text-red-500 hover:text-red-400"><i class="ph ph-trash text-sm"></i></button>` : '';
+                    
+                    channelElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="channel-info flex items-center gap-2 flex-1">
+                                <i class="ph ph-hash text-main-purple"></i>
+                                <span class="font-bold text-sm">${channel.name}</span>
+                            </div>
+                            ${deleteBtn}
+                        </div>
+                    `;
+                    
+                    channelElement.querySelector('.channel-info')?.addEventListener('click', () => {
+                        selectChannel(channelId, channel);
+                    });
+                    
+                    const deleteButton = channelElement.querySelector('.delete-channel-btn');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            if (confirm(`Delete channel "${channel.name}"?`)) {
+                                try {
+                                    await deleteDoc(doc(db, "channels", channelId));
+                                    if (currentChannelId === channelId) {
+                                        currentChannelId = null;
+                                        showNoChannelView();
+                                    }
+                                } catch (error) {
+                                    console.error("Error deleting channel:", error);
+                                    alert("Could not delete channel.");
+                                }
+                            }
+                        });
+                    }
+                    
+                    channelsList.appendChild(channelElement);
+                });
+            });
+        }
+        
+        function selectChannel(channelId, channel) {
+            currentChannelId = channelId;
+            currentChannelName.textContent = channel.name;
+            currentChannelDescription.textContent = channel.description;
+            
+            noChannelSelected.classList.add('hidden');
+            chatView.classList.remove('hidden');
+            
+            // Update active state
+            document.querySelectorAll('.channel-item').forEach(el => {
+                el.classList.toggle('bg-purple-900/50', el.dataset.id === channelId);
+                el.classList.toggle('hover:bg-purple-900/30', el.dataset.id !== channelId);
+            });
+            
+            listenForMessages(channelId);
+        }
+        
+        function showNoChannelView() {
+            chatView.classList.add('hidden');
+            noChannelSelected.classList.remove('hidden');
+            if (unsubscribeMessages) {
+                unsubscribeMessages();
+                unsubscribeMessages = null;
+            }
+        }
+        
+        function listenForMessages(channelId) {
+            if (unsubscribeMessages) {
+                unsubscribeMessages();
+            }
+            
+            const messagesQuery = query(
+                collection(db, "channels", channelId, "messages"),
+                orderBy("createdAt", "asc")
+            );
+            
+            unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
+                messagesContainer.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    messagesContainer.innerHTML = '<p class="text-gray-400 text-center">No messages yet. Start the conversation!</p>';
+                    return;
+                }
+                
+                const currentUser = auth.currentUser;
+                snapshot.forEach(docSnap => {
+                    const message = docSnap.data();
+                    const messageId = docSnap.id;
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message-item flex gap-3 p-3 rounded-lg hover:bg-purple-900/20 transition-colors';
+                    messageElement.setAttribute('data-id', messageId);
+                    
+                    const timestamp = message.createdAt ? new Date(message.createdAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'now';
+                    const authorClass = message.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : 'text-main-purple';
+                    const adminStar = message.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? `<img src="assets/images/admin-star.png" class="w-4 h-4 ml-1 inline" title="Official" onerror="this.style.display='none'">` : '';
+                    
+                    const userIsAdmin = isAdmin(currentUser);
+                    const isOwnMessage = currentUser && currentUser.uid === message.authorId;
+                    const canDelete = isOwnMessage || userIsAdmin;
+                    const deleteBtn = canDelete ? `<button class="delete-message-btn text-red-500 hover:text-red-400 ml-auto"><i class="ph ph-trash text-sm"></i></button>` : '';
+                    
+                    messageElement.innerHTML = `
+                        <i class="ph ph-user-circle text-main-purple text-3xl"></i>
+                        <div class="flex-1">
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <span class="font-bold ${authorClass}">${message.authorDisplayName}</span>
+                                ${adminStar}
+                                <span class="text-xs text-gray-500">${timestamp}</span>
+                                ${deleteBtn}
+                            </div>
+                            <p class="text-gray-300">${message.content}</p>
+                        </div>
+                    `;
+                    
+                    const deleteButton = messageElement.querySelector('.delete-message-btn');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', async () => {
+                            if (confirm('Delete this message?')) {
+                                try {
+                                    await deleteDoc(doc(db, "channels", channelId, "messages", messageId));
+                                } catch (error) {
+                                    console.error("Error deleting message:", error);
+                                    alert("Could not delete message.");
+                                }
+                            }
+                        });
+                    }
+                    
+                    messagesContainer.appendChild(messageElement);
+                });
+                
+                // Auto-scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+        
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            const user = auth.currentUser;
+            
+            if (!content || !user || !currentChannelId) return;
+            
+            try {
+                await addDoc(collection(db, "channels", currentChannelId, "messages"), {
+                    content,
+                    authorId: user.uid,
+                    authorDisplayName: user.displayName,
+                    createdAt: serverTimestamp()
+                });
+                messageInput.value = '';
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
+        });
+    </script>
+    <script type="module" src="assets/js/particle-animation.js"></script>
+</body>
+</html>

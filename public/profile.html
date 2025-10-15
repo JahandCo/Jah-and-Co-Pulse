@@ -36,6 +36,7 @@
                 <a href="index.html" class="nav-link"><i class="ph ph-house"></i>Timeline</a>
                 <a href="groups.html" class="nav-link"><i class="ph ph-users"></i>Groups</a>
                 <a href="board.html" class="nav-link"><i class="ph ph-chats"></i>Board</a>
+                <a href="chat.html" class="nav-link"><i class="ph ph-chat-circle-dots"></i>Chat</a>
                 <a href="profile.html" class="nav-link active"><i class="ph ph-user-circle"></i>Profile</a>
                 <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="ph ph-sign-out"></i>Logout</button>
             </nav>
@@ -87,6 +88,7 @@
         import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { setTheme, loadTheme } from './assets/js/theme.js';
+        import { isAdmin } from './assets/js/utils.js';
 
         loadTheme();
         const db = getFirestore(app);
