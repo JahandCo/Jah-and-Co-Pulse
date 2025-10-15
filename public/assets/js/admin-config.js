@@ -15,6 +15,7 @@
  */
 export const ADMIN_UIDS = [
     // Example: 'abc123xyz456def789ghi',
+    'ciI8EAWyBVfqJMvVUdbmmX8Uy9e2',
     // Add actual admin UIDs here
 ];
 
@@ -24,6 +25,7 @@ export const ADMIN_UIDS = [
  */
 export const ADMIN_DISPLAY_NAMES = {
     // Example: 'abc123xyz456def789ghi': 'Jah and Co',
+    'ciI8EAWyBVfqJMvVUdbmmX8Uy9e2': 'Jah and Co Admin',
     // Add mappings here
 };
 
