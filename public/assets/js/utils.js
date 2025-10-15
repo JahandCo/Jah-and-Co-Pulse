@@ -1,8 +1,9 @@
 // Utility functions for the Pulse application
+import { isAdmin as checkIsAdmin, LEGACY_ADMIN_DISPLAY_NAME } from './admin-config.js';
 
-// Check if user is admin
+// Check if user is admin (delegated to admin-config.js)
 export function isAdmin(user) {
-    return user && user.displayName === "Jah and Co";
+    return checkIsAdmin(user);
 }
 
 // Show display name modal
@@ -81,7 +82,7 @@ export function enforceDisplayName(auth, db, onComplete) {
 
 // Get admin name HTML with gold styling
 export function getAdminNameHTML(authorDisplayName, includeIcon = true) {
-    if (authorDisplayName === "Jah and Co") {
+    if (authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME) {
         const iconHTML = includeIcon ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
         return `<h3 class="font-bold text-xl text-admin-gold">${authorDisplayName}</h3>${iconHTML}`;
     }

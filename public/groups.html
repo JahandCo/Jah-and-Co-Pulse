@@ -77,6 +77,7 @@
         import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, addDoc, serverTimestamp, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { loadTheme } from './assets/js/theme.js';
         import { enforceDisplayName, isAdmin } from './assets/js/utils.js';
+        import { LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
         
         loadTheme();
         const db = getFirestore(app);
@@ -340,9 +341,9 @@
                     const editButtonHTML = canEdit && !isOwnPost ?
                         `<button class="edit-group-post-button secondary-button !text-blue-500 hover:!text-blue-400 ml-auto"><i class="ph ph-pencil"></i>Edit</button>` : '';
                     
-                    const adminStarHTML = post.authorDisplayName === "Jah and Co" ? 
+                    const adminStarHTML = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 
                         `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
-                    const authorClass = post.authorDisplayName === "Jah and Co" ? 'text-admin-gold' : '';
+                    const authorClass = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : '';
                     
                     postEl.innerHTML = `
                         <header class="flex items-center gap-4 mb-4">

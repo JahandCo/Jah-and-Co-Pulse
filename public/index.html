@@ -79,6 +79,7 @@
         import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where, limit, increment } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { loadTheme } from './assets/js/theme.js';
         import { enforceDisplayName, isAdmin } from './assets/js/utils.js';
+        import { LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
 
         loadTheme();
         const db = getFirestore(app);
@@ -129,7 +130,7 @@
         });
 
         function loadLatestPulsePost() {
-            const pulseQuery = query(collection(db, "posts"), where("authorDisplayName", "==", "Jah and Co"), orderBy("createdAt", "desc"), limit(1));
+            const pulseQuery = query(collection(db, "posts"), where("authorDisplayName", "==", LEGACY_ADMIN_DISPLAY_NAME), orderBy("createdAt", "desc"), limit(1));
             onSnapshot(pulseQuery, (snapshot) => {
                 pulseWidgetContainer.innerHTML = '';
                 if (snapshot.empty) { pulseWidgetContainer.innerHTML = `<p class="text-gray-500">No updates yet.</p>`; return; }
@@ -179,10 +180,10 @@
                 const editButtonHTML = canEdit && !isOwnPost ?
                     `<button class="edit-post-button secondary-button !text-blue-500 hover:!text-blue-400 ml-auto"><i class="ph ph-pencil"></i>Edit</button>` : '';
                 
-                const adminStarHTML = post.authorDisplayName === "Jah and Co" ? 
+                const adminStarHTML = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 
                     `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
                 const author = post.authorDisplayName || post.authorId;
-                const authorClass = post.authorDisplayName === "Jah and Co" ? 'text-admin-gold' : '';
+                const authorClass = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : '';
 
                 postElement.innerHTML = `
                     <header class="flex items-center gap-4 mb-4">
