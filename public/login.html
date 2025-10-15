@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login or Sign up for Community Pulse">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com https://*.firebase.com https://firestore.googleapis.com wss://*.firebaseio.com https://www.gstatic.com; frame-src 'self' https://*.firebaseapp.com;">
+    
+    <title>Login | Jah and Co Pulse</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div id="auth-view" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="text-center mascot-container">
+                <img src="/assets/images/sparky-full.png" alt="Sparky, the Pulse mascot" class="max-w-xs md:max-w-sm mx-auto" onerror="this.style.display='none'">
+                <h1 class="main-header text-white mt-4">
+                    Community <span class="text-main-purple">Pulse</span>
+                </h1>
+                <p class="text-xl text-gray-300 mt-2">Join the conversation. Share your vibe.</p>
+            </div>
+
+            <div class="w-full max-w-md mx-auto">
+                <div id="signup-form-container">
+                    <form id="signup-form" class="card space-y-6">
+                        <h2 class="text-2xl font-bold">Create Your Account</h2>
+                        <input type="text" id="signup-displayname" placeholder="Display Name" class="input-field w-full" required>
+                        <input type="email" id="signup-email" placeholder="Email Address" class="input-field w-full" required>
+                        <input type="password" id="signup-password" placeholder="Password" class="input-field w-full" required>
+                        <button type="submit" class="neon-button w-full"><i class="ph-user-plus"></i>Sign Up</button>
+                        <p id="signup-error" class="text-red-400 h-4 text-sm"></p>
+                    </form>
+                    <p class="mt-6 text-center">Already have an account? <button id="show-login-btn" class="secondary-button">Log In</button></p>
+                </div>
+
+                <div id="login-form-container" class="hidden">
+                    <form id="login-form" class="card space-y-6">
+                        <h2 class="text-2xl font-bold">Welcome Back!</h2>
+                        <input type="email" id="login-email" placeholder="Email Address" class="input-field w-full" required>
+                        <input type="password" id="login-password" placeholder="Password" class="input-field w-full" required>
+                        <button type="submit" class="neon-button w-full"><i class="ph-sign-in"></i>Log In</button>
+                        <p id="login-error" class="text-red-400 h-4 text-sm"></p>
+                    </form>
+                    <p class="mt-6 text-center">Need an account? <button id="show-signup-btn" class="secondary-button">Sign Up</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { app } from "/assets/js/firebase-config.js";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { loadTheme } from '/assets/js/theme.js';
+
+        loadTheme();
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const signupForm = document.getElementById('signup-form');
+        const loginForm = document.getElementById('login-form');
+        const showLoginBtn = document.getElementById('show-login-btn');
+        const showSignupBtn = document.getElementById('show-signup-btn');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        showLoginBtn.addEventListener('click', () => { 
+            document.getElementById('signup-form-container').classList.add('hidden');
+            document.getElementById('login-form-container').classList.remove('hidden');
+        });
+        showSignupBtn.addEventListener('click', () => {
+            document.getElementById('login-form-container').classList.add('hidden');
+            document.getElementById('signup-form-container').classList.remove('hidden');
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const displayName = document.getElementById('signup-displayname').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorEl = document.getElementById('signup-error');
+            errorEl.textContent = '';
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                await updateProfile(user, { displayName: displayName });
+                await setDoc(doc(db, "users", user.uid), { displayName, email: user.email, uid: user.uid, createdAt: serverTimestamp() });
+            } catch (error) { errorEl.textContent = error.message; }
+        });
+        
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+            errorEl.textContent = '';
+            signInWithEmailAndPassword(auth, email, password)
+                .catch(() => { 
+                    errorEl.textContent = "Failed to log in. Please check credentials."; 
+                });
+        });
+    </script>
+    <script type="module" src="/assets/js/particle-animation.js"></script>
+</body>
+</html>
