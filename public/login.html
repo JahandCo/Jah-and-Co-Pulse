@@ -18,7 +18,7 @@
     
     <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
     
     <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -29,7 +29,7 @@
     <div id="auth-view" class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div class="text-center mascot-container">
-                <img src="assets/images/sparky-full.png" alt="Sparky, the Pulse mascot" class="max-w-xs md:max-w-sm mx-auto" onerror="this.style.display='none'">
+                <img src="/assets/images/sparky-full.png" alt="Sparky, the Pulse mascot" class="max-w-xs md:max-w-sm mx-auto" onerror="this.style.display='none'">
                 <h1 class="main-header text-white mt-4">
                     Community <span class="text-main-purple">Pulse</span>
                 </h1>
@@ -64,10 +64,10 @@
     </div>
 
     <script type="module">
-        import { app } from "./assets/js/firebase-config.js";
+        import { app } from "/assets/js/firebase-config.js";
         import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { loadTheme } from './assets/js/theme.js';
+        import { loadTheme } from '/assets/js/theme.js';
 
         loadTheme();
         const db = getFirestore(app);
@@ -120,6 +120,6 @@
                 });
         });
     </script>
-    <script type="module" src="assets/js/particle-animation.js"></script>
+    <script type="module" src="/assets/js/particle-animation.js"></script>
 </body>
 </html>
