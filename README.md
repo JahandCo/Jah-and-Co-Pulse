@@ -44,6 +44,10 @@ Jah-and-Co-Pulse/
 └── README.md                    # This file
 ```
 
+## Important Notes
+
+⚠️ **The `public/` directory contains all application files.** When deploying or running the application, make sure to serve from the `public/` directory.
+
 ## Setup Instructions
 
 ### Prerequisites
@@ -80,8 +84,11 @@ Jah-and-Co-Pulse/
 
 4. **Using a development server**
    
+   **Important:** Serve from the `public/` directory!
+   
    **Option A: Using Python (simplest)**
    ```bash
+   cd public
    python3 -m http.server 8000
    ```
    Then open http://localhost:8000
@@ -91,9 +98,11 @@ Jah-and-Co-Pulse/
    npm install
    npm run dev
    ```
+   Note: You may need to configure Vite to use the `public/` directory as the root.
 
    **Option C: Using PHP**
    ```bash
+   cd public
    php -S localhost:8000
    ```
 
