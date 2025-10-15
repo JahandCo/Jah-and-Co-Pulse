@@ -98,7 +98,7 @@ Jah-and-Co-Pulse/
    npm install
    npm run dev
    ```
-   Note: You may need to configure Vite to use the `public/` directory as the root.
+   Note: Vite is already configured to serve from the `public/` directory via `vite.config.js`.
 
    **Option C: Using PHP**
    ```bash
