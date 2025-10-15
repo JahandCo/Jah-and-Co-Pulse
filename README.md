@@ -17,25 +17,36 @@ A vibrant social platform for the Jah and Co community to connect, share, and en
 
 ```
 Jah-and-Co-Pulse/
-├── assets/
-│   ├── css/
-│   │   └── style.css           # Main stylesheet
-│   ├── js/
-│   │   ├── firebase-config.js  # Firebase configuration
-│   │   ├── theme.js            # Theme management
-│   │   └── particle-animation.js # Animated background
-│   └── images/                 # Image assets
-├── index.html                  # Main timeline page
-├── login.html                  # Authentication page
-├── board.html                  # Discussion board
-├── groups.html                 # Community groups
-├── profile.html                # User profile
-├── .htaccess                   # Apache configuration
-├── firebase.json               # Firebase hosting config
-├── package.json                # Project dependencies
-├── .gitignore                  # Git ignore rules
-└── README.md                   # This file
+├── public/                      # Web root - all application files
+│   ├── assets/
+│   │   ├── css/
+│   │   │   └── style.css       # Main stylesheet
+│   │   ├── js/
+│   │   │   ├── firebase-config.js  # Firebase configuration
+│   │   │   ├── theme.js        # Theme management
+│   │   │   └── particle-animation.js # Animated background
+│   │   └── images/             # Image assets
+│   ├── index.html              # Main timeline page
+│   ├── login.html              # Authentication page
+│   ├── board.html              # Discussion board
+│   ├── groups.html             # Community groups
+│   ├── profile.html            # User profile
+│   ├── .htaccess               # Apache configuration
+│   └── favicon.ico             # Site icon
+├── config/                      # Server configuration files
+│   ├── pulseapp.jahandco.tech.conf       # Apache HTTP config
+│   ├── pulseapp.jahandco.tech-le-ssl.conf # Apache HTTPS/SSL config
+│   └── deploy.sh               # Deployment script
+├── firebase.json                # Firebase hosting config
+├── package.json                 # Project dependencies
+├── .env.example                 # Environment variables template
+├── .gitignore                   # Git ignore rules
+└── README.md                    # This file
 ```
+
+## Important Notes
+
+⚠️ **The `public/` directory contains all application files.** When deploying or running the application, make sure to serve from the `public/` directory.
 
 ## Setup Instructions
 
@@ -73,8 +84,11 @@ Jah-and-Co-Pulse/
 
 4. **Using a development server**
    
+   **Important:** Serve from the `public/` directory!
+   
    **Option A: Using Python (simplest)**
    ```bash
+   cd public
    python3 -m http.server 8000
    ```
    Then open http://localhost:8000
@@ -84,33 +98,38 @@ Jah-and-Co-Pulse/
    npm install
    npm run dev
    ```
+   Note: Vite is already configured to serve from the `public/` directory via `vite.config.js`.
 
    **Option C: Using PHP**
    ```bash
+   cd public
    php -S localhost:8000
    ```
 
 5. **For production deployment**
 
-   **Option A: Deploy to Apache Server (pulseapp.jahandco.tech)**
+   **Option A: Deploy to Apache Server**
    
-   The application is ready for Apache deployment with all necessary configuration files:
+   The application is ready for Apache deployment with all necessary configuration files in the `config/` directory:
    
    ```bash
-   # Quick deployment (3 commands)
-   scp -r . user@your-ip:/var/www/Jah-and-Co-Pulse/
-   sudo /var/www/Jah-and-Co-Pulse/deploy.sh
+   # Deploy the public directory to your web server
+   scp -r public/ user@your-ip:/var/www/html/
+   
+   # Deploy server configuration (if needed)
+   scp config/pulseapp.jahandco.tech.conf user@your-ip:/etc/apache2/sites-available/
+   sudo a2ensite pulseapp.jahandco.tech.conf
+   sudo systemctl reload apache2
+   
+   # Set up SSL with Certbot
    sudo certbot --apache -d pulseapp.jahandco.tech
    ```
    
-   **Included Files:**
-   - `public/` - Web root directory
-   - `pulseapp.jahandco.tech.conf` - Apache HTTP config
-   - `pulseapp.jahandco.tech-le-ssl.conf` - Apache HTTPS/SSL config
-   - `.env` - Production Firebase credentials
-   - `deploy.sh` - Automated deployment script
-   
-   See **DEPLOYMENT.md** for complete instructions.
+   **Configuration Files:**
+   - `public/` - Web root directory (deploy this to your server)
+   - `config/pulseapp.jahandco.tech.conf` - Apache HTTP config
+   - `config/pulseapp.jahandco.tech-le-ssl.conf` - Apache HTTPS/SSL config
+   - `config/deploy.sh` - Automated deployment script
    
    **Option B: Deploy to Firebase Hosting**
    
@@ -120,6 +139,8 @@ Jah-and-Co-Pulse/
    firebase init hosting
    firebase deploy
    ```
+   
+   The `firebase.json` is already configured to deploy the `public/` directory.
 
 ## Firebase Security Rules
 
