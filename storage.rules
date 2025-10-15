@@ -13,6 +13,7 @@ service firebase.storage {
       return isAuthenticated() && request.auth.uid in [
         // Add admin UIDs here - must match admin-config.js ADMIN_UIDS array
         // Example: 'abc123xyz456def789ghi',
+              'ciI8EAWyBVfqJMvVUdbmmX8Uy9e2',
       ];
     }
     
