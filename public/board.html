@@ -97,7 +97,7 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
         import { loadTheme } from './assets/js/theme.js';
         import { enforceDisplayName, isAdmin } from './assets/js/utils.js';
-        import { LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
+        import { ADMIN_UIDS, LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
 
         loadTheme();
         const db = getFirestore(app);
