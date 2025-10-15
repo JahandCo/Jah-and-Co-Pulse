@@ -26,7 +26,7 @@
 
     <div id="main-app-view" class="fade-in-section">
         <header class="app-header container mx-auto flex justify-between items-center sticky top-0 bg-opacity-80 backdrop-blur-md z-10 border-b border-purple-900/50">
-            <a href="index.html" class="header-logo text-2xl font-bold uppercase tracking-widest text-white">
+            <a href="index.html" id="header-logo-link" class="header-logo text-2xl font-bold uppercase tracking-widest text-white">
                 <img src="assets/images/sparky-headshot.png" alt="Sparky Mascot" onerror="this.style.display='none'">
                 <span>Jah and Co <span class="text-main-purple pulse-animated">Pulse</span></span>
             </a>
@@ -106,6 +106,7 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                updateHeaderForAdmin(user);
                 const hasDisplayName = enforceDisplayName(auth, db, () => {
                     document.getElementById('main-app-view').style.display = 'block';
                     listenForBoardPosts();
@@ -479,6 +480,19 @@ function loadComments(postId, container) {
             container.appendChild(commentEl);
         });
     });
+}
+function updateHeaderForAdmin(user) {
+    if (isAdmin(user)) {
+        const headerLink = document.getElementById('header-logo-link');
+        if (headerLink) {
+            const headerTitleSpan = headerLink.querySelector('span');
+            if(headerTitleSpan){
+                // Add "Admin" and apply the gold class
+                headerTitleSpan.innerHTML = `Jah and Co <span class="text-main-purple pulse-animated">Pulse</span> | Admin`;
+                headerTitleSpan.classList.add('text-admin-gold');
+            }
+        }
+    }
 }
     </script>
     <script type="module" src="assets/js/particle-animation.js"></script>
