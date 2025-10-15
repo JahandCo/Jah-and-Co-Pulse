@@ -75,7 +75,7 @@
         import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, addDoc, serverTimestamp, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { loadTheme } from './assets/js/theme.js';
         import { enforceDisplayName, isAdmin } from './assets/js/utils.js';
-        import { LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
+        import { ADMIN_UIDS, LEGACY_ADMIN_DISPLAY_NAME } from './assets/js/admin-config.js';
         
         loadTheme();
         const db = getFirestore(app);
