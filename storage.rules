@@ -1,0 +1,78 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is admin
+    // IMPORTANT: Add your admin UIDs here to match admin-config.js
+    function isAdmin() {
+      return isAuthenticated() && request.auth.uid in [
+        // Add admin UIDs here - must match admin-config.js ADMIN_UIDS array
+        // Example: 'abc123xyz456def789ghi',
+      ];
+    }
+    
+    // Helper function to validate file size (max 10MB for images, 50MB for videos)
+    function isValidFileSize(maxSize) {
+      return request.resource.size <= maxSize;
+    }
+    
+    // Helper function to validate image file type
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Helper function to validate video file type
+    function isVideo() {
+      return request.resource.contentType.matches('video/.*');
+    }
+    
+    // Profile pictures
+    match /profilePictures/{userId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() 
+        && request.auth.uid == userId
+        && isImage()
+        && isValidFileSize(5 * 1024 * 1024); // 5MB max
+    }
+    
+    // Group avatars
+    match /groupAvatars/{groupId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() 
+        && isImage()
+        && isValidFileSize(5 * 1024 * 1024); // 5MB max
+    }
+    
+    // Chat attachments (images and videos)
+    match /chatAttachments/{channelId}/{messageId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+        && (isImage() && isValidFileSize(10 * 1024 * 1024) // 10MB for images
+            || isVideo() && isValidFileSize(50 * 1024 * 1024)); // 50MB for videos
+      allow delete: if isAuthenticated() || isAdmin();
+    }
+    
+    // Direct message attachments
+    match /dmAttachments/{conversationId}/{messageId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+        && (isImage() && isValidFileSize(10 * 1024 * 1024) // 10MB for images
+            || isVideo() && isValidFileSize(50 * 1024 * 1024)); // 50MB for videos
+      allow delete: if isAuthenticated() || isAdmin();
+    }
+    
+    // Post attachments (for timeline and board posts)
+    match /postAttachments/{postId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+        && (isImage() && isValidFileSize(10 * 1024 * 1024) // 10MB for images
+            || isVideo() && isValidFileSize(50 * 1024 * 1024)); // 50MB for videos
+      allow delete: if isAuthenticated() || isAdmin();
+    }
+  }
+}
