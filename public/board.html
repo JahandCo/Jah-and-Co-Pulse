@@ -238,8 +238,8 @@ function renderDiscussion(el, post, postId) {
     const deleteBtn = canDelete ? `<button class="delete-post-btn neon-button !bg-red-500 hover:!bg-red-600 !shadow-red-500/50 !py-2 !px-4 !text-sm ${canEdit && !isOwner ? 'ml-2' : 'ml-auto'}"><i class="ph ph-trash"></i>Delete</button>` : '';
     const editBtn = canEdit && !isOwner ? `<button class="edit-post-btn neon-button !bg-blue-500 hover:!bg-blue-600 !shadow-blue-500/50 !py-2 !px-4 !text-sm ml-auto"><i class="ph ph-pencil"></i>Edit</button>` : '';
     const adminStar = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
-    const authorClass = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : '';
-    const likeCount = post.likes ? Object.keys(post.likes).length : 0;
+    const authorIsAdmin = ADMIN_UIDS.includes(post.authorId) || post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME;
+    const authorClass = authorIsAdmin ? 'text-admin-gold' : '';    const likeCount = post.likes ? Object.keys(post.likes).length : 0;
     const isLiked = user && post.likes && post.likes[user.uid];
     const likeButtonClasses = isLiked ? 'text-accent-purple' : 'text-gray-400';
 
@@ -298,8 +298,8 @@ function renderDiscussion(el, post, postId) {
             const canUserSeeResults = isPollClosed || userVote || (user && user.uid === post.authorId);
             const userIsAdmin = isAdmin(user);
             const adminStar = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
-            const authorClass = post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME ? 'text-admin-gold' : '';
-
+            const authorIsAdmin = ADMIN_UIDS.includes(post.authorId) || post.authorDisplayName === LEGACY_ADMIN_DISPLAY_NAME;
+            const authorClass = authorIsAdmin ? 'text-admin-gold' : '';
             let optionsHtml = '';
 
             if (canUserSeeResults) {
