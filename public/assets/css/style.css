@@ -84,13 +84,31 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.125rem;
     color: rgb(156 163 175);
     font-weight: 700;
-    transition: color 300ms;
+    transition: all 300ms ease;
+    position: relative;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #e811ff, #9333ea);
+    transition: width 0.3s ease;
 }
 .nav-link:hover {
     color: white;
+    transform: translateY(-2px);
+}
+.nav-link:hover::after {
+    width: 100%;
 }
 .nav-link.active {
     color: #d88aff; /* text-main-purple */
+}
+.nav-link.active::after {
+    width: 100%;
 }
 
 
@@ -111,14 +129,37 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.neon-button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+.neon-button:hover::before {
+    opacity: 1;
+    animation: buttonShimmer 1.5s infinite;
 }
 .neon-button:hover {
     transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 0 15px #e811ff, 0 0 30px #9333ea;
+    box-shadow: 0 0 15px #e811ff, 0 0 30px #9333ea, 0 0 40px rgba(232, 17, 255, 0.3);
     background: linear-gradient(90deg, #ff4cff, #a55cfa);
 }
 .neon-button:active {
     transform: translateY(0) scale(1);
+}
+
+@keyframes buttonShimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 .secondary-button {
