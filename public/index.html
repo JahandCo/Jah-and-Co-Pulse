@@ -36,6 +36,7 @@
                 <a href="index.html" class="nav-link active"><i class="ph ph-house"></i>Timeline</a>
                 <a href="groups.html" class="nav-link"><i class="ph ph-users"></i>Groups</a>
                 <a href="board.html" class="nav-link"><i class="ph ph-chats"></i>Board</a>
+                <a href="chat.html" class="nav-link"><i class="ph ph-chat-circle-dots"></i>Chat</a>
                 <a href="profile.html" class="nav-link"><i class="ph ph-user-circle"></i>Profile</a>
                 <button id="logout-button" class="neon-button !py-2 !px-6 !text-sm"><i class="ph ph-sign-out"></i>Logout</button>
             </nav>
@@ -77,6 +78,7 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where, limit, increment } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { loadTheme } from './assets/js/theme.js';
+        import { enforceDisplayName, isAdmin } from './assets/js/utils.js';
 
         loadTheme();
         const db = getFirestore(app);
@@ -94,10 +96,19 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                mainAppView.style.display = 'block';
-                postContentTextarea.placeholder = `What's happening, ${user.displayName || 'friend'}?`;
-                listenForCommunityPosts();
-                loadLatestPulsePost();
+                const hasDisplayName = enforceDisplayName(auth, db, () => {
+                    mainAppView.style.display = 'block';
+                    postContentTextarea.placeholder = `What's happening, ${user.displayName || 'friend'}?`;
+                    listenForCommunityPosts();
+                    loadLatestPulsePost();
+                });
+                
+                if (hasDisplayName) {
+                    mainAppView.style.display = 'block';
+                    postContentTextarea.placeholder = `What's happening, ${user.displayName || 'friend'}?`;
+                    listenForCommunityPosts();
+                    loadLatestPulsePost();
+                }
             }
             else {
                 window.location.href = 'login.html';
@@ -158,23 +169,32 @@
                 const isLiked = currentUser && post.likes && post.likes[currentUser.uid];
                 const likeButtonClasses = isLiked ? 'text-accent-purple' : 'text-gray-400';
                 const likeCount = post.likes ? Object.keys(post.likes).length : 0;
-                const deleteButtonHTML = currentUser && currentUser.uid === post.authorId ? 
-                    `<button class="delete-post-button secondary-button !text-red-500 hover:!text-red-600 ml-auto"><i class="ph ph-trash"></i>Delete</button>` : '';
+                const userIsAdmin = isAdmin(currentUser);
+                const isOwnPost = currentUser && currentUser.uid === post.authorId;
+                const canDelete = isOwnPost || userIsAdmin;
+                const canEdit = userIsAdmin;
+                
+                const deleteButtonHTML = canDelete ? 
+                    `<button class="delete-post-button secondary-button !text-red-500 hover:!text-red-600 ${canEdit && !isOwnPost ? 'ml-2' : 'ml-auto'}"><i class="ph ph-trash"></i>Delete</button>` : '';
+                const editButtonHTML = canEdit && !isOwnPost ?
+                    `<button class="edit-post-button secondary-button !text-blue-500 hover:!text-blue-400 ml-auto"><i class="ph ph-pencil"></i>Edit</button>` : '';
                 
                 const adminStarHTML = post.authorDisplayName === "Jah and Co" ? 
                     `<img src="assets/images/admin-star.png" class="w-5 h-5 ml-2" title="Official Post" onerror="this.style.display='none'">` : '';
                 const author = post.authorDisplayName || post.authorId;
+                const authorClass = post.authorDisplayName === "Jah and Co" ? 'text-admin-gold' : '';
 
                 postElement.innerHTML = `
                     <header class="flex items-center gap-4 mb-4">
                         <i class="ph ph-user-circle text-main-purple text-5xl"></i>
                         <div>
                             <div class="flex items-center">
-                                <h3 class="font-bold text-xl">${author}</h3>
+                                <h3 class="font-bold text-xl ${authorClass}">${author}</h3>
                                 ${adminStarHTML}
                             </div>
                             <span class="text-sm text-gray-400">${date}</span>
                         </div>
+                        ${editButtonHTML}
                         ${deleteButtonHTML}
                     </header>
                     <div class="text-gray-200 text-lg whitespace-pre-wrap leading-relaxed">${post.content}</div>
@@ -204,6 +224,7 @@
         timelineContainer.addEventListener('click', async (e) => {
             const likeButton = e.target.closest('.like-button');
             const deleteButton = e.target.closest('.delete-post-button');
+            const editButton = e.target.closest('.edit-post-button');
             const commentButton = e.target.closest('.comment-button');
             const postElement = e.target.closest('.card');
             if (!postElement) return;
@@ -220,6 +241,22 @@
                     const likes = postData.likes || {};
                     likes[user.uid] ? delete likes[user.uid] : likes[user.uid] = true;
                     await updateDoc(postRef, { likes });
+                }
+            }
+            if (editButton) {
+                const postRef = doc(db, "posts", postId);
+                const postSnap = await getDoc(postRef);
+                if (postSnap.exists()) {
+                    const postData = postSnap.data();
+                    const newContent = prompt("Edit post content:", postData.content);
+                    if (newContent && newContent.trim() !== postData.content) {
+                        try {
+                            await updateDoc(postRef, { content: newContent.trim() });
+                        } catch (error) {
+                            console.error("Error editing post:", error);
+                            alert("Could not edit post.");
+                        }
+                    }
                 }
             }
             if (deleteButton) {

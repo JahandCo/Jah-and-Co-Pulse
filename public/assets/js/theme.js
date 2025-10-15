@@ -2,7 +2,7 @@ const themes = {
     default: {
         '--main-purple': '#7c3aed',
         '--accent-purple': '#a855f7',
-        '--main-bg': '#111827',
+        '--main-bg': 'linear-gradient(135deg, #1e3a8a 0%, #5b21b6 100%)',
         '--main-card': '#1f2937',
         '--main-border': '#374151',
         '--main-text': '#f9fafb',
